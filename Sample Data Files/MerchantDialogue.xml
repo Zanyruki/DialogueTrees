@@ -1,0 +1,251 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DialogueTree name="Merchant">
+
+  <Dialogue start="true" nodeID="#start">
+    <Response value="">
+      <NextNode condition="$player.bKnowsAboutYellowKey" nodeID="#hello" />
+      <NextNode nodeID="#busy" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#busy">
+    <Text value="Sorry traveler, I'm counting inventory right now. I don't think the farmers are busy right now." />
+  </Dialogue>
+
+  <Dialogue nodeID="#hello">
+    <Text value="Hello traveler, may I interest you in any fine goods?" />
+    <Response condition=" ! $bKeyOffer && $player.bKnowsMerchantHasKey" value="I've heard you have a yellow key.">
+      <NextNode nodeID="#haveKey" />
+    </Response>
+    <Response condition=" $bDeal && $player.money >= 35" value="I've brought enough gold.">
+      <NextNode nodeID="#buyYellowKeyDeal" />
+    </Response>
+    <Response condition=" $bKeyOffer && $player.money >= 50" value="I've brought enough gold.">
+      <NextNode nodeID="#buyYellowKey" />
+    </Response>
+    <Response condition=" ! $player.bKnowsMap && $bKeyOffer" value="Would you be willing to trade for that key of yours?">
+      <NextNode nodeID="#trade" />
+    </Response>
+    <Response condition=" $bTomePissed && $player.money >= 20" value="I've come back to buy that tome.">
+      <NextNode nodeID="#sellTomePissed" />
+    </Response>
+    <Response condition=" ! $bTomeDeal && $bOfferTome && $player.money >= 10" value="I've come back to buy that tome.">
+      <NextNode nodeID="#sellTomeExpensive" />
+    </Response>
+    <Response condition=" $bTomeDeal && $bOfferTome && $player.money >= 5" value="I've come back to buy that tome.">
+      <NextNode nodeID="#sellTome" />
+    </Response>
+    <Response condition=" ! $player.bYellowKey && ! $bKeyOffer && ! $player.bKnowsMerchantHasKey" value="Have you seen a yellow key?">
+      <NextNode nodeID="#askAboutKey" />
+    </Response>
+    <Response condition=" $player.bHasCandlestick && $player.bKnowsCandlestick" value="Want to trade my candlestick for your key?">
+      <NextNode nodeID="#tradeCandlestickForKey" />
+    </Response>
+    <Response condition=" $player.bHasMap && $player.bKnowsMap" value="Want to trade my map for your key?">
+      <NextNode nodeID="#tradeMapForKey" />
+    </Response>
+
+    <Response condition=" ! ( $bTomeDeal || $bOfferTome || $bTomePissed || $bSoldTome )" value="That tome looks interesting.">
+      <NextNode nodeID="#tome" />
+    </Response>
+    <Response value="No thanks, I'm good.">
+    	<NextNode nodeID="#nextTime" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#nextTime">
+    <Text value="Until next time, traveler." />
+  </Dialogue>
+
+  <Dialogue nodeID="#seeYaPissed">
+    <Text value="Get out of here then." />
+  </Dialogue>
+
+  <Dialogue nodeID="#askAboutKey">
+    <Text value="I have seen one, because I own one." />
+    <Response value="Can I have it?">
+      <NextNode nodeID="#haveKey" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#tome">
+    <Text value="I've had it for years. I haven't met anyone who can read it" />
+    <Response condition="$player.intelligence < 6" value="I know someone who can read that. [Lie]" >
+      <NextNode condition="$player.deception > 5" nodeID="#believeTomeLie" />
+      <NextNode condition="$player.deception <= 5" nodeID="#proveTomeReading" />
+    </Response>
+    <Response condition="$player.intelligence > 5" value="That looks like Latin, I can read that." >
+      <NextNode nodeID="#whatDoesTomeSay" />
+    </Response>
+    <Response value="How much for it?" >
+      <NextNode nodeID="#tryToBuyTome" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#tryToBuyTome">
+    <Text value="This book is a treasure of mine. I couldn't part with it for more than 10 gold." />
+    <Action variable="$bOfferTome" expression="true" isNewVariable="true" type="bool" />
+    <Response condition="$player.charisma > 5 && $player.orientation == $gender" value="Can you cute a deal for me, cutie?" >
+      <NextNode nodeID="#tomeDeal" />
+    </Response>
+    <Response condition="$player.money >= 10" value="I'll buy it." >
+      <NextNode nodeID="#sellTomeExpensive" />
+    </Response>
+    <Response value="No thanks." >
+      <NextNode nodeID="#nextTime" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#whatDoesTomeSay">
+    <Text value="What does the tome say?" />
+    <Response value="It seems to be a religious text." >
+      <NextNode nodeID="#giveItToPriest" />
+    </Response>
+    <Response condition="$player.charisma < 3" value="I don't have to tell you." >
+      <NextNode nodeID="#pissOffTome" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#giveItToPriest">
+    <Text value="Oh, the priest might be interested in that. Can you give it to him?" />
+    <Event eventName="GiveItem" eventArgName="ItemName" eventArg="Tome" />
+    <Action variable="$bSoldTome" expression="true" isNewVariable="true" type="bool" />
+    <Action variable="$player.bGiveTomeToPriest" expression="true" isNewVariable="true" type="bool" />
+  </Dialogue>
+
+  <Dialogue nodeID="#believeTomeLie">
+    <Text value="Ok traveller, you can have it for 5 gold." />
+    <Action variable="$bOfferTome" expression="true" isNewVariable="true" type="bool" />
+    <Action variable="$bTomeDeal" expression="true" isNewVariable="true" type="bool" />
+    <Response condition="$player.money >= 5" value="You've got yourself a deal." >
+      <NextNode nodeID="#sellTome" />
+    </Response>
+    <Response value="Not right now." >
+      <NextNode nodeID="#nextTime" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#proveTomeReading">
+    <Text value="Ok then traveller, who can read it?" />
+    <Response condition="$player.charisma > 5 && $player.orientation == $gender" value="Oh, I forget their name because I got lost in your eyes." >
+      <NextNode nodeID="#believeTomeLie" />
+    </Response>
+    <Response condition="$player.intelligence > 3" value="My friend Rosseta Stone knows a lot of languages." >
+      <NextNode nodeID="#believeTomeLie" />
+    </Response>
+    <Response value="Just..uh...this guy I know..." >
+      <NextNode nodeID="#pissOffTome" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#tomeDeal">
+    <Text value="Oh alright. The lowest I can give you is 5 gold, and that's borderline theft." />
+    <Action variable="$bTomeDeal" expression="true" isNewVariable="true" type="bool" />
+    <Response condition="$player.money >= 5" value="Deal" >
+      <NextNode nodeID="#sellTome" />
+    </Response>
+    <Response value="Not right now." >
+      <NextNode nodeID="#nextTime" />
+    </Response>
+  </Dialogue>
+
+   <Dialogue nodeID="#sellTome">
+    <Text value="Thanks for the business, traveler" />
+    <Action variable="$bSoldTome" expression="true" isNewVariable="true" type="bool" />
+    <Action variable="$bOfferTome" expression="false" type="bool" />
+    <Action variable="$bTomeDeal" expression="false" type="bool" />
+    <Action variable="$player.money" expression="$player.money - 5" type="int" />
+    <Event eventName="GiveItem" eventArgName="ItemName" eventArg="Tome" />
+  </Dialogue>
+
+  <Dialogue nodeID="#sellTomeExpensive">
+    <Text value="Thanks for the business, traveler" />
+    <Action variable="$bSoldTome" expression="true" isNewVariable="true" type="bool" />
+    <Action variable="$bOfferTome" expression="false" type="bool" />
+    <Action variable="$player.money" expression="$player.money - 10" type="int" />
+    <Event eventName="GiveItem" eventArgName="ItemName" eventArg="Tome" />
+  </Dialogue>
+
+  <Dialogue nodeID="#sellTomePissed">
+    <Text value="Thanks for the pleasure, traveler" />
+    <Action variable="$bTomePissed" expression="false" type="bool" />
+    <Action variable="$bSoldTome" expression="true" isNewVariable="true" type="bool" />
+    <Action variable="$player.money" expression="$player.money - 20" type="int" />
+    <Event eventName="GiveItem" eventArgName="ItemName" eventArg="Tome" />
+  </Dialogue>
+
+  <Dialogue nodeID="#pissOffTome">
+    <Text value="Well in that case, the tome's value just doubled. It will be 20 gold if you want it." />
+    <Action variable="$bTomePissed" expression="true" isNewVariable="true" type="bool" />
+    <Response condition="$player.money >= 20" value="Ugh, FINE." >
+      <NextNode nodeID="#sellTomePissed" />
+    </Response>
+    <Response value="No way. That's highway robbery." >
+      <NextNode nodeID="#seeYaPissed" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#haveKey">
+    <Text value="I'm not willing to part with it so easily. The price is 50 gold." />
+    <Action variable="$bKeyOffer" expression="true" isNewVariable="true" type="bool" />
+    <Response condition="$player.money >= 50" value="You've got yourself a deal." >
+      <NextNode nodeID="#buyYellowKey" />
+    </Response>
+    <Response condition="$player.charisma > 5" value="I'm sure that key isn't worth that much. The most I can give you is 35." >
+      <NextNode nodeID="#getADeal" />
+    </Response>
+    <Response condition="$player.charisma > 2 && $gender == $player.orientation" value="You sure you can't cut a deal for me, cutie?">
+      <NextNode nodeID="#getADeal" />
+    </Response>
+    <Response value="I don't have that kind of money. Is there anything I can trade for it?">
+      <NextNode nodeID="#trade" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#trade">
+    <Text value="I would be willing to trade for the priest's gold candlestick or a treasure map." />
+    <Action variable="$player.bKnowsCandlestick" expression="true" isNewVariable="true" type="bool" />
+    <Action variable="$player.bKnowsMap" expression="true" isNewVariable="true" type="bool" />
+    <Response condition=" $player.bHasCandlestick" value="I have the candlestick, want to trade?">
+      <NextNode nodeID="#tradeCandlestickForKey" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#getADeal">
+    <Text value="For you, I can make a deal. 35 gold." />
+    <Action variable="$bDeal" expression="true" isNewVariable="true" type="bool" />
+    <Response condition="$player.money >= 35" value="Deal.">
+      <NextNode nodeID="#buyYellowKeyDeal" />
+    </Response>
+    <Response condition="$player.money < 35" value="Give me a minute to get your money.">
+      <NextNode nodeID="#nextTime" />
+    </Response>
+  </Dialogue>  
+
+  <Dialogue nodeID="#tradeCandlestickForKey">
+    <Text value="You have yourself a trade, stranger." />
+    <Event eventName="LoseItem" eventArgName="ItemName" eventArg="Candlestick" />
+    <Event eventName="GiveItem" eventArgName="ItemName" eventArg="YellowKey" />
+  </Dialogue>
+
+  <Dialogue nodeID="#tradeMapForKey">
+    <Text value="You have yourself a trade, stranger." />
+    <Event eventName="LoseItem" eventArgName="ItemName" eventArg="Map" />
+    <Event eventName="GiveItem" eventArgName="ItemName" eventArg="YellowKey" />
+  </Dialogue>
+
+  <Dialogue nodeID="#buyYellowKey">
+    <Text value="Thanks for the business, traveler" />
+    <Action variable="$bKeyOffer" expression="false" type="bool" />
+    <Action variable="$player.money" expression="$player.money - 50" type="int" />
+    <Event eventName="GiveItem" eventArgName="ItemName" eventArg="YellowKey" />
+  </Dialogue>
+
+  <Dialogue nodeID="#buyYellowKeyDeal">
+    <Text value="Thanks for the business, traveler" />
+    <Action variable="$bKeyOffer" expression="false" type="bool" />
+    <Action variable="$player.money" expression="$player.money - 35" type="int" />
+    <Event eventName="GiveItem" eventArgName="ItemName" eventArg="YellowKey" />
+  </Dialogue>
+
+</DialogueTree>

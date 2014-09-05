@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<DialogueTree name="Farmer" >
+
+  <Dialogue start="true" nodeID="#start">
+    <Response value="" >
+      <NextNode condition="$player.bKnowsAboutYellowKey" nodeID="#stranger" />
+      <NextNode nodeID="#hi" ></NextNode>
+    </Response>
+  </Dialogue>
+  
+
+  <Dialogue nodeID="#hi">
+    <Text value="Howdy stranger!"></Text>
+    <Response value="Who are you?"  >
+      <NextNode nodeID="#introduction" />
+    </Response>
+    <Response value="Where am I?" >
+      <NextNode nodeID="#town" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#nice day">
+    <Text value="Have a nice day."></Text>
+  </Dialogue>
+
+  <Dialogue nodeID="#introduction">
+    <Text value="'The name is ' + $name + . I'm a farmer 'round these parts."></Text>
+    <Response value="'So ' + $name + , Where am I?"  >
+      <NextNode nodeID="#town" />
+    </Response>
+  </Dialogue>
+
+
+  <Dialogue nodeID="#town">
+    <Text value="This here town's called Hearthville."></Text>
+    <Response value="What is there to do here?.">
+      <NextNode nodeID="#what to do" />
+    </Response>
+    <Response value="How do I leave?"  >
+      <NextNode nodeID="#leaving" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#what to do">
+    <Text value="Mostly just talk to folks."></Text>
+    <Response value="How do I leave?"  >
+      <NextNode nodeID="#leaving" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#leaving">
+    <Text value="You need to unlock the yellow doors in the northeast corner with a yellow key."></Text>
+    <Action variable="$player.bKnowsAboutYellowKey" expression="true" isNewVariable="true" type="bool" />
+    <Response value="Do you know where I can get a yellow key?"  >
+      <NextNode nodeID="#askAround" />
+    </Response>
+    <Response value="Thanks for the info."  >
+      <NextNode nodeID="#nice day" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#askAround">
+    <Text value="I do not, sorry partner. Try askin' other folk."></Text>
+  </Dialogue>
+
+  <Dialogue nodeID="#stranger">
+    <Text value="Back again stranger?"></Text>
+    <Response value="Need anything done?"  >
+      <NextNode condition="! $bFixed" nodeID="#chores" />
+      <NextNode nodeID="#noChores" />
+    </Response>
+    <Response condition="! $player.bHasMap && !$bNoSale && $player.bKnowsMap" value="You wouldn't happen to have a map?"  >
+      <NextNode nodeID="#map" />
+    </Response>
+    <Response condition="! $bNoTome && ! $player.bGiveTomeToPriest && $player.bHasTome" value = "Does this tome have any value to you?" >
+      <NextNode nodeID="#cannotRead" />
+    </Response>
+    <Response condition="$bOfferMap && $player.money >= 10" value = "I've brought your money?" >
+      <NextNode nodeID="#mapSale" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#map">
+    <Text value="I do. I'm hoping to strike it rich, if only I had the time to go look for it."></Text>
+    <Response condition="$player.deception > 5" value="Since you're so busy, how about I go and find the treasure, and give you half of what I find? [LIE]"  >
+      <NextNode nodeID="#trickMap" />
+    </Response>
+    <Response condition="$player.charisma > 5 && $player.bKnowsTwoMaps" value="I don't think this is a treasure map, the other farmer has the same map. I'll give you 10 gold for it."  >
+      <NextNode nodeID="#buyMap" />
+    </Response>
+    <Response value="You wouldn't be willing to sell that map, would you?"  >
+      <NextNode nodeID="#noSale" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#noChores">
+    <Text value="Sorry partner, you already did any work I had."></Text>
+  </Dialogue>
+
+  <Dialogue nodeID="#chores">
+    <Text value="Well, since you mention it, my tractor is broken."></Text>
+    <Response condition="$player.intelligence > 5" value="I'm pretty good with machines. Let me look at it."  >
+      <NextNode nodeID="#fixTractor" />
+    </Response>
+    <Response condition="$player.intelligence < 6" value="Sorry, I don't think I can help with that."  >
+      <NextNode nodeID="#cannotFix" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#fixTractor">
+    <Text value="Well I'll be. You fixed the darned thing. Let me pay you for your troubles."></Text>
+    <Action variable="$player.money" expression="$player.money + 20" type="int" />
+    <Action variable="$bFixed" expression="true" isNewVariable="true" type="bool" />
+  </Dialogue>
+
+  <Dialogue nodeID="#cannotFix">
+    <Text value="No problem partner."></Text>
+  </Dialogue>
+
+  <Dialogue nodeID="#trickMap">
+    <Text value="Half the profit for no work? That'll let me take care of my farm too. You got yourself a deal."></Text>
+    <Event eventName="GiveItem" eventArgName="ItemName" eventArg="Map" />
+  </Dialogue>
+
+  <Dialogue nodeID="#buyMap">
+    <Text value="Shoot, I thought I had a treasure map. You got a deal."></Text>
+    <Action variable="$bOfferMap" expression="true" isNewVariable="true" type="bool" />
+    <Response condition="$player.money >= 10" value="Done."  >
+      <NextNode nodeID="#mapSale" />
+    </Response>
+    <Response condition="$player.money < 10" value="Let me go get your money first."  >
+      <NextNode nodeID="#mapOffer" />
+    </Response>
+  </Dialogue>
+
+  <Dialogue nodeID="#mapSale">
+    <Text value="Thanks Partner."></Text>
+    <Action variable="$bOfferMap" expression="false" type="bool" />
+    <Action variable="$player.money" expression="$player.money - 10" type="int" />
+    <Event eventName="GiveItem" eventArgName="ItemName" eventArg="Map" />
+  </Dialogue>
+
+  <Dialogue nodeID="#mapOffer">
+    <Text value="Hurry back before I change my mind."></Text>
+  </Dialogue>
+
+  <Dialogue nodeID="#noSale">
+    <Text value="Nope. This baby's gonna make me rich."></Text>
+    <Action variable="$bNoSale" expression="true" isNewVariable="true" type="bool" />
+  </Dialogue>
+
+  
+
+  <Dialogue nodeID="#cannotRead">
+    <Text value="Nope. I can't even read."></Text>
+    <Action variable="$bNoTome" expression="true" isNewVariable="true" type="bool" />
+  </Dialogue>
+  
+  
+
+</DialogueTree>
